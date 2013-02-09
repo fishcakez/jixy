@@ -147,16 +147,16 @@ nif_size_key(encode) ->
 nif_size_key(decode) ->
     nif_size_decode.
 
-select_module_by_size(encode, Term, Int) ->
+select_module_by_size(encode, Term, JiffyMax) ->
     case erlang:external_size(Term, [{minor_version, 1}]) of
-        Size when Int =< Size ->
+        Size when Size =< JiffyMax ->
             jiffy;
         _ ->
             jsx
     end;
-select_module_by_size(decode, Binary, Int) ->
+select_module_by_size(decode, Binary, JiffyMax) ->
     case erlang:byte_size(Binary) of
-        Size when Int =< Size ->
+        Size when Size =< JiffyMax ->
             jiffy;
         _ ->
             jsx
