@@ -1,0 +1,9 @@
+{application, jixy, [
+    {description, "JSON encoder/decoder"},
+    {vsn, "0.1.0"},
+    {registered, []},
+    {modules, [jixy]},
+    {applications, [
+        kernel,
+        stdlib]}
+]}.

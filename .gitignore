@@ -1,0 +1,4 @@
+ebin
+deps
+logs
+test/*.beam
