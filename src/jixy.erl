@@ -70,8 +70,8 @@ decode(IoList, Opts) when is_list(IoList) ->
     decode(Binary, Opts);
 decode(Binary, Opts) when is_list(Opts) ->
     Module = select_module(decode, Binary, Opts),
-    {Opts2, Labels} = parse_decode_options(Module, Opts),
-    try do_decode(Module, Binary, Opts2, Labels) of
+    {Opts2, PostFun} = parse_decode_options(Module, Opts),
+    try do_decode(Module, Binary, Opts2, PostFun) of
         {incomplete, Fun} when is_function(Fun) ->
             {error, badarg};
         Term ->
@@ -190,11 +190,13 @@ parse_decode_options(Module, Opts) ->
             {[{post_decode, fun jsx_post_decode/1}], undefined}
     end.
 
-do_decode(Module, Binary, Opts2, undefined) ->
-    Module:decode(Binary, Opts2);
-do_decode(Module, Binary, Opts2, PostFunction) ->
-    Term = Module:decode(Binary, Opts2),
-    PostFunction(Term).
+do_decode(jsx, Binary, Opts, undefined) ->
+    jsx:decode(Binary, Opts);
+do_decode(jiffy, Binary, _Opts, undefined) ->
+    jiffy:decode(Binary);
+do_decode(jiffy, Binary, _Opts, PostFun) ->
+    Term = jiffy:decode(Binary),
+    PostFun(Term).
 
 labels_atom({PropList}) ->
     [{binary_to_atom(Key, utf8), labels_atom(Value)} ||
