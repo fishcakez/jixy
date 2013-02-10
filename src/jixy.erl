@@ -197,16 +197,16 @@ do_decode(jiffy, Binary, _Opts, PostFun) ->
     PostFun(Term).
 
 labels_atom({PropList}) ->
-    [{binary_to_atom(Key, utf8), labels_atom(Value)} ||
-        {Key, Value} <- PropList];
+    {[{binary_to_atom(Key, utf8), labels_atom(Value)} ||
+            {Key, Value} <- PropList]};
 labels_atom(List) when is_list(List) ->
     [labels_atom(Element) || Element <- List];
 labels_atom(Term) ->
     Term.
 
 labels_existing_atom({PropList}) ->
-    [{binary_to_existing_atom(Key, utf8), labels_existing_atom(Value)} ||
-        {Key, Value} <- PropList];
+    {[{binary_to_existing_atom(Key, utf8), labels_existing_atom(Value)} ||
+            {Key, Value} <- PropList]};
 labels_existing_atom(List) when is_list(List) ->
     [labels_existing_atom(Element) || Element <- List];
 labels_existing_atom(Term) ->
