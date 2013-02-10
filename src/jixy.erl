@@ -25,14 +25,12 @@
     {nif_size_decode, 0 | infinity | pos_integer()}.
 -type decode_options() :: [decode_option()].
 
--type json_text() :: iolist().
+-type json_text() :: iolist() | binary().
 -type json_term() ::
     {[{binary() | atom(), json_term()}]} | [json_term()] | true | false | null |
     integer() | float() | binary() | atom().
 
--opaque decode_state() ::
-    fun((json_text() | end_stream) ->
-        {ok, decode_state()} | {ok, json_text()} | {error, badarg}).
+-opaque decode_state() :: jsx:decoder().
 
 -export_type([encode_options/0,
               decode_options/0,
