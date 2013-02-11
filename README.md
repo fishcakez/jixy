@@ -38,4 +38,7 @@ size to use jiffy for. So `infinity` will always use jiffy; `0`, jsx.
 -spec jixy:decpde_end(state()) -> {ok, term()} | {error, badarg}
 ```
 
+License
+=======
 
+MIT License (see LICENSE)
