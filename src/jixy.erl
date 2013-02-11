@@ -64,13 +64,18 @@ decode(IoList) ->
 -spec decode(json_text(), decode_options()) ->
     {ok, json_term()} | {error, badarg}.
 decode(IoList, Opts) when is_list(IoList) ->
-    Binary = erlang:iolist_to_binary(IoList),
-    decode(Binary, Opts);
+    try erlang:iolist_to_binary(IoList) of
+        Binary ->
+            decode(Binary, Opts)
+    catch
+        error:badarg ->
+            {error, badarg}
+    end;
 decode(Binary, Opts) when is_list(Opts) ->
     Module = select_module(decode, Binary, Opts),
     {Opts2, PostFun} = parse_decode_options(Module, Opts),
     try do_decode(Module, Binary, Opts2, PostFun) of
-        {incomplete, Fun} when is_function(Fun) ->
+        {incomplete, _Fun} ->
             {error, badarg};
         Term ->
             {ok, Term}
@@ -78,6 +83,8 @@ decode(Binary, Opts) when is_list(Opts) ->
         throw:{error, _} ->
             {error, badarg};
         error:badarg ->
+            {error, badarg};
+        error:function_clause ->
             {error, badarg}
     end.
 
@@ -91,12 +98,19 @@ decode_init(Opts) when is_list(Opts) ->
 -spec decode_stream(decode_state(), json_text()) ->
     {ok, decode_state()} | {error, badarg}.
 decode_stream(Fun, IoList) when is_list(IoList) ->
-    Binary = erlang:iolist_to_binary(IoList),
-    decode_stream(Fun, Binary);
-decode_stream(Fun, Binary) when is_function(Fun) andalso is_binary(Binary) ->
+    try erlang:iolist_to_binary(IoList) of
+        Binary ->
+            decode_stream(Fun, Binary)
+    catch
+        error:badarg ->
+            {error, badarg}
+    end;
+decode_stream(Fun, Binary) when is_function(Fun, 1) ->
     try Fun(Binary) of
         {incomplete, Fun2} ->
-            {ok, Fun2}
+            {ok, Fun2};
+        _Term ->
+            {error, badarg}
     catch
         error:badarg ->
             {error, badarg}
@@ -212,6 +226,16 @@ labels_existing_atom(List) when is_list(List) ->
 labels_existing_atom(Term) ->
     Term.
 
+jsx_pre_encode({[]}) ->
+    [{}];
+jsx_pre_encode({PropList}) ->
+    PropList;
+jsx_pre_encode(true) ->
+    true;
+jsx_pre_encode(false) ->
+    false;
+jsx_pre_encode(null) ->
+    null;
 jsx_pre_encode(Atom) when is_atom(Atom) ->
     erlang:atom_to_binary(Atom, utf8);
 jsx_pre_encode(Term) ->
@@ -219,7 +243,7 @@ jsx_pre_encode(Term) ->
 
 jsx_post_decode([{}]) ->
     {[]};
-jsx_post_decode([Tuple | _Rest] = PropList) when is_tuple(Tuple) ->
+jsx_post_decode([{_Key, _Value} | _Rest] = PropList) ->
     {PropList};
 jsx_post_decode(Term) ->
     Term.
