@@ -35,7 +35,7 @@ size to use jiffy for. So `infinity` will always use jiffy; `0`, jsx.
 -spec jixy:decode_init([{labels, binary | atom | existing_atom}]) -> state().
 -spec jixy:decode_stream(state(), iolist() | binary()) ->
     {ok, state()} | {error, badarg}.
--spec jixy:decpde_end(state()) -> {ok, term()} | {error, badarg}
+-spec jixy:decode_end(state()) -> {ok, term()} | {error, badarg}
 ```
 
 License
